@@ -38,6 +38,22 @@ using PriceConverter for uint256;
         _;
     }
 
-    
-    
+    function withdraw() public onlyOwner {
+        for (uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++) {
+            address funder = funders[funderIndex];
+            addressToAmountFunded[funder] = 0;
+        }
+        funders = new address[](0);
+        // //  method 1: transfer  [throws err if fails]
+        // payable(msg.sender).transfer(address(this).balance);
+
+        // // method 2: send   [returns a bool value if txn was completed]
+        // bool sendSuccess = payable(msg.sender).send(address(this).balance);
+        // require(sendSuccess, "Send failed");
+
+        // method 3: call     [returns two values (bool value that txn was success or not, data with txn)]
+        (bool callSuccess,) = payable(msg.sender).call{value: address(this).balance}("");
+        require(callSuccess, "Call failed");
+    }
+   
 }
